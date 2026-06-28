@@ -205,29 +205,54 @@ body {
 .cell.light .piece { color: #1E293B; filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.6)); }
 .cell.dark .piece { color: #0F172A; filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.4)); }
 
-/* Unrevealed piece styling */
+/* Unrevealed piece styling (for own pieces) */
 .piece.own-unrevealed {
+  color: transparent !important;
+  text-shadow: none !important;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #3a3b50 0%, #1e1f29 100%);
+  border: 2px solid var(--accent);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6), 0 3px 6px rgba(0,0,0,0.4);
+  transition: all 0.25s ease;
 }
+
 .piece.own-unrevealed::after {
-  content: '?';
+  content: '❓';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1rem;
-  font-weight: 900;
-  font-family: var(--font-sans);
-  background: var(--accent);
-  color: #fff;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255,255,255,0.8);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  font-size: 1.3rem;
+  z-index: 3;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+/* Hover state to reveal the piece underneath */
+.piece.own-unrevealed:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.cell.light .piece.own-unrevealed:hover {
+  color: #1E293B !important;
+  filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.6));
+}
+
+.cell.dark .piece.own-unrevealed:hover {
+  color: #0F172A !important;
+  filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.4));
+}
+
+.piece.own-unrevealed:hover::after {
+  opacity: 0;
 }
 
 /* Hidden piece for the opponent */
@@ -391,8 +416,8 @@ body {
 /* BUTTONS */
 #controls {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 .btn-primary, .btn-sec {
@@ -518,22 +543,10 @@ body {
 }
 
 .swatch-unrevealed {
-  background: var(--board-light);
-  color: #1e293b;
-  border: 1px solid var(--border);
-  position: relative;
-}
-.swatch-unrevealed::after {
-  content: '?';
-  font-size: 0.5rem;
-  background: var(--accent);
-  color: white;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
+  background: radial-gradient(circle, #3a3b50 0%, #1e1f29 100%);
+  color: #fff;
+  border: 1.5px solid var(--accent);
+  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -715,4 +728,65 @@ body {
   .player-bar {
     max-width: 450px;
   }
+}
+
+/* Rules Dialog Specific Styles */
+.rules-dialog-box {
+  max-width: 600px;
+  width: 90%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+}
+
+.rules-dialog-content {
+  overflow-y: auto;
+  text-align: left;
+  margin-top: 20px;
+  padding-right: 10px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.rules-dialog-content h3 {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  color: var(--accent);
+  margin-top: 18px;
+  margin-bottom: 8px;
+  border-left: 3px solid var(--accent);
+  padding-left: 8px;
+}
+
+.rules-dialog-content h3:first-of-type {
+  margin-top: 0;
+}
+
+.rules-dialog-content p {
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+
+.rules-dialog-content b {
+  color: #fff;
+}
+
+/* Custom Scrollbar for Rules Dialog Content */
+.rules-dialog-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rules-dialog-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.rules-dialog-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.rules-dialog-content::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }

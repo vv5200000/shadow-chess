@@ -31,6 +31,37 @@
     </div>
   </div>
 
+  <!-- ░░ RULES DIALOG ░░ -->
+  <div id="rules-dialog" class="overlay hidden">
+    <div class="dialog-box rules-dialog-box">
+      <div class="dialog-icon">📖</div>
+      <h2 class="dialog-heading">暗影象棋 规则说明</h2>
+      <div class="rules-dialog-content">
+        <h3>1. 随机开局</h3>
+        <p>游戏开始时，除国王外，双方的 15 个棋子会与兵一起，在各自底部的两行（行 1、2 及行 7、8）<b>完全随机打乱摆放</b>。这意味着兵可能会出现在底线，而强力棋子也可能出现在前线。</p>
+        
+        <h3>2. 身份迷雾 (暗棋)</h3>
+        <p>• <b>己方棋子</b>：平时显示为 ❓ 状态以防止旁人偷窥。您可以将<b>鼠标悬停（或手机上轻触）</b>在己方未揭示的棋子上，以实时查阅它的真实身份。</p>
+        <p>• <b>对方棋子</b>：对方完全无法看到您的棋子身份（显示为 ❓ 迷雾状态），直到该棋子进行移动。</p>
+        
+        <h3>3. 伪装首步 (以格子为准)</h3>
+        <p>任何棋子在进行<b>第一步移动</b>时，必须遵循它<b>当前所占格子在经典国际象棋中对应的棋子走法</b>，而不是其真实的棋子走法！</p>
+        <p>• <i>例如：如果您的真实“后”在开局中随机落在“马”的初始格子（如 b1 ），那么它的第一步只能像“马”一样跳日字走棋。</i></p>
+        <p>• 经典格子规则对照表：底线八格从左到右依次对应“车、马、象、后、王、象、马、车”，倒数第二行（所有八个格子）均对应“兵”。</p>
+        
+        <h3>4. 翻面显形 (Reveal)</h3>
+        <p>一旦某个棋子完成了它的第一步移动，它就会<b>翻面亮出真实身份</b>。从第二步开始，该棋子将永远遵循其<b>真实身份的规则</b>进行移动（例如显形后的车此后只能横竖走直行）。</p>
+        
+        <h3>5. 自动揭示</h3>
+        <p>当任意一方被“将军”时，<b>发起将军的敌方棋子会自动显形</b>，使防守方能够看清威胁来源并做出防卫。</p>
+        
+        <h3>6. 胜利条件</h3>
+        <p>捕获对方国王，或达成传统将死（Checkmate），或对方时间耗尽，即可获得胜利。</p>
+      </div>
+      <button id="btn-rules-close" class="btn-primary" style="margin-top: 20px; width: 100%;">我知道了</button>
+    </div>
+  </div>
+
   <!-- ░░ GAME OVER DIALOG ░░ -->
   <div id="gameover-dialog" class="overlay hidden">
     <div class="dialog-box gameover-box">
@@ -103,6 +134,9 @@
         <button id="btn-undo" class="btn-sec" title="悔棋">
           <span>↩</span> 悔棋
         </button>
+        <button id="btn-rules" class="btn-sec" title="查看详细规则">
+          <span>📖</span> 规则说明
+        </button>
       </div>
 
       <!-- Move history -->
@@ -143,10 +177,10 @@
         <div class="section-title">🗺️ 图例</div>
         <div class="legend-list">
           <div class="legend-item">
-            <div class="legend-swatch swatch-unrevealed">♕</div>
+            <div class="legend-swatch swatch-unrevealed">❓</div>
             <div class="legend-text">
               <div class="legend-label">己方未揭示</div>
-              <div class="legend-desc">可见真实身份 · 首步按位置走</div>
+              <div class="legend-desc">悬停查看身份 · 首步按位置走</div>
             </div>
           </div>
           <div class="legend-item">

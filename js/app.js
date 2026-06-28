@@ -17,6 +17,8 @@ class ChessApp {
     document.getElementById('btn-undo').onclick=()=>this.undo();
     document.getElementById('btn-pass-ready').onclick=()=>this._passReady();
     document.getElementById('btn-gameover-new').onclick=()=>this.newGame();
+    document.getElementById('btn-rules').onclick=()=>this._show('rules-dialog');
+    document.getElementById('btn-rules-close').onclick=()=>this._hide('rules-dialog');
   }
 
   // ── New Game ─────────────────────────────────────────────────────────────────
