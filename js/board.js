@@ -59,7 +59,7 @@ class ChessBoard {
         div.textContent=PIECE_SYMBOLS[piece.color][piece.type];
         div.className='piece';
       } else {
-        div.className='piece own-unrevealed';
+        div.className=`piece own-unrevealed unrevealed-${piece.color}`;
         div.innerHTML='<span class="hidden-q">?</span>';
         const posType=this.game.getPosRule(r,c);
         const typeNames={K:'国王',Q:'后',R:'车',B:'象',N:'马',P:'兵'};
@@ -71,7 +71,7 @@ class ChessBoard {
         div.textContent=PIECE_SYMBOLS[piece.color][piece.type];
         div.className='piece';
       } else {
-        div.className='piece hidden-piece';
+        div.className=`piece hidden-piece unrevealed-${piece.color}`;
         div.innerHTML='<span class="hidden-q">?</span>';
       }
     }
