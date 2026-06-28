@@ -55,16 +55,16 @@ class ChessBoard {
     const isOwn=piece.color===this.perspective;
 
     if (isOwn) {
-      // Player can always see their own pieces
-      div.textContent=PIECE_SYMBOLS[piece.color][piece.type];
-      div.className=`piece${piece.revealed?'':' own-unrevealed'}`;
-      if (!piece.revealed) {
-        // Show what type this piece will move as this turn
+      if (piece.revealed) {
+        div.textContent=PIECE_SYMBOLS[piece.color][piece.type];
+        div.className='piece';
+      } else {
+        div.className='piece own-unrevealed';
+        div.innerHTML='<span class="hidden-q">?</span>';
         const posType=this.game.getPosRule(r,c);
         const typeNames={K:'国王',Q:'后',R:'车',B:'象',N:'马',P:'兵'};
-        const actualName=typeNames[piece.type]||piece.type;
-        const posName=posType?typeNames[posType]:actualName;
-        div.title=`真实身份: ${actualName}\n本回合走法: ${posName}`;
+        const posName=posType?typeNames[posType]:'未知';
+        div.title=`本回合走法规则: ${posName}`;
       }
     } else {
       if (piece.revealed) {

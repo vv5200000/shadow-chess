@@ -207,52 +207,18 @@ body {
 
 /* Unrevealed piece styling (for own pieces) */
 .piece.own-unrevealed {
-  color: transparent !important;
-  text-shadow: none !important;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: radial-gradient(circle, #3a3b50 0%, #1e1f29 100%);
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: radial-gradient(circle, #3a3b50 0%, #1e1f29 100%);
   border: 2px solid var(--accent);
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6), 0 3px 6px rgba(0,0,0,0.4);
-  transition: all 0.25s ease;
-}
-
-.piece.own-unrevealed::after {
-  content: '❓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.3rem;
-  z-index: 3;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-}
-
-/* Hover state to reveal the piece underneath */
-.piece.own-unrevealed:hover {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.cell.light .piece.own-unrevealed:hover {
-  color: #1E293B !important;
-  filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.6));
-}
-
-.cell.dark .piece.own-unrevealed:hover {
-  color: #0F172A !important;
-  filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.4));
-}
-
-.piece.own-unrevealed:hover::after {
-  opacity: 0;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8), 0 3px 6px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 /* Hidden piece for the opponent */
