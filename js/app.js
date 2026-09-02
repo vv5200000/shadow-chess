@@ -7,30 +7,70 @@ class ChessApp {
     this.timers={white:600,black:600};
     this.timerInterval=null;
     this.moveNum=1;
+    this.mode={type:'h2h'};                    // {type:'h2h'} | {type:'ai', aiColor:'white'|'black'}
+    this.ai=new (window.ShadowAI)(3);
+    this._aiToken=0;                           // AI 思考令牌：新局/悔棋时作废未决的 AI 回合
     this.board.onMove=(fr,fc,tr,tc)=>this._onMove(fr,fc,tr,tc);
     this._bindUI();
-    this.newGame();
+    this._showModeDialog();
   }
 
   _bindUI() {
-    document.getElementById('btn-new').onclick=()=>this.newGame();
+    document.getElementById('btn-new').onclick=()=>this._showModeDialog();
     document.getElementById('btn-undo').onclick=()=>this.undo();
     document.getElementById('btn-pass-ready').onclick=()=>this._passReady();
-    document.getElementById('btn-gameover-new').onclick=()=>this.newGame();
+    document.getElementById('btn-gameover-new').onclick=()=>this._showModeDialog();
     document.getElementById('btn-rules').onclick=()=>this._show('rules-dialog');
     document.getElementById('btn-rules-close').onclick=()=>this._hide('rules-dialog');
+    document.getElementById('btn-mode-rules').onclick=()=>this._show('rules-dialog');
+    document.getElementById('btn-mode-h2h').onclick=()=>this.newGame({type:'h2h'});
+    document.getElementById('btn-mode-ai-w').onclick=()=>this.newGame({type:'ai',aiColor:'black'});
+    document.getElementById('btn-mode-ai-b').onclick=()=>this.newGame({type:'ai',aiColor:'white'});
+  }
+
+  // ── Mode Select Dialog ───────────────────────────────────────────────────────
+  _showModeDialog() {
+    clearInterval(this.timerInterval);
+    this._aiToken++;
+    this._hide('gameover-dialog');
+    this._hide('promo-dialog');
+    this._hide('pass-screen');
+    this._hide('ai-thinking');
+    this._show('mode-dialog');
   }
 
   // ── New Game ─────────────────────────────────────────────────────────────────
-  newGame() {
+  newGame(mode) {
+    this.mode=mode||{type:'h2h'};
+    this.aiColor=this.mode.type==='ai'?this.mode.aiColor:null;
+    this.humanColor=this.aiColor==='white'?'black':'white';
     this.game.newGame();
     this.timers={white:600,black:600};
     this.moveNum=1;
+    this._aiToken++;
     clearInterval(this.timerInterval);
     document.getElementById('move-list').innerHTML='';
     this._hide('gameover-dialog');
+    this._hide('mode-dialog');
+    this._hide('promo-dialog');
+    this._hide('ai-thinking');
     this._hideCheck();
-    this._showPass();
+    this.board.locked=false;
+
+    if (this.mode.type==='ai') {
+      this.board.perspective=this.humanColor;
+      this.board.render(this.humanColor);
+      this._updateTurnIndicator();
+      this._updatePlayerBars();
+      this._updateTimerDisplay();
+      if (this.aiColor==='white') {
+        setTimeout(()=>this._aiTurn(),400);    // AI 先手：开局直接进入 AI 回合
+      } else {
+        this._startTimer();
+      }
+    } else {
+      this._showPass();
+    }
   }
 
   // ── Pass Screen ──────────────────────────────────────────────────────────────
@@ -67,21 +107,27 @@ class ChessApp {
         clearInterval(this.timerInterval);
         const winner=c==='white'?'黑方':'白方';
         this.board.revealAllPieces();
-        this.board.render('white');
+        this.board.render(this.board.perspective);
         this._showGameOver(`${winner}获胜！（${c==='white'?'白方':'黑方'}超时）`);
       }
     },1000);
   }
 
-  // ── Move Handling ────────────────────────────────────────────────────────────
-  _onMove(fr, fc, tr, tc) {
+  // ── Move Handling (人类与 AI 共用) ───────────────────────────────────────────
+  _onMove(fr, fc, tr, tc, asAI=false) {
     const result=this.game.makeMove(fr,fc,tr,tc);
     if (!result) return;
     this.board._repaint();
     this.board.animateLanding(tr,tc);
 
     if (result.needsPromotion) {
-      this._showPromotion(result.record);
+      if (asAI) {
+        const rec=this.game.completePromotion('Q');   // AI 升变自动变后
+        this.board._repaint();
+        this._afterMove(rec);
+      } else {
+        this._showPromotion(result.record);
+      }
       return;
     }
     this._afterMove(result);
@@ -98,7 +144,7 @@ class ChessApp {
       clearInterval(this.timerInterval);
       const wName=record.gameOver?.winner==='white'?'白方':'黑方';
       this.board.revealAllPieces();
-      this.board.render('white');
+      this.board.render(this.board.perspective);
       setTimeout(()=>this._showGameOver(`${wName}获胜！（捕获国王！）`),900);
       return;
     }
@@ -106,20 +152,104 @@ class ChessApp {
       clearInterval(this.timerInterval);
       const wName=this.game.currentTurn==='white'?'黑方':'白方';
       this.board.revealAllPieces();
-      this.board.render('white');
+      this.board.render(this.board.perspective);
       setTimeout(()=>this._showGameOver(`${wName}获胜！（将死）`),900);
       return;
     }
     if (state==='stalemate') {
       clearInterval(this.timerInterval);
       this.board.revealAllPieces();
-      this.board.render('white');
+      this.board.render(this.board.perspective);
       setTimeout(()=>this._showGameOver('平局！（无子可走）'),900);
       return;
     }
+    if (state==='draw') {
+      clearInterval(this.timerInterval);
+      this.board.revealAllPieces();
+      this.board.render(this.board.perspective);
+      setTimeout(()=>this._showGameOver('和棋！（局面三次重复）'),900);
+      return;
+    }
 
-    // Normal turn end – show pass screen after brief moment
-    setTimeout(()=>this._showPass(),1100);
+    // 正常回合流转
+    if (this.mode.type==='ai') {
+      this.board.locked=false;
+      if (this.game.currentTurn===this.aiColor) this._aiTurn();
+      else this._startHumanTurn();
+    } else {
+      setTimeout(()=>this._showPass(),1100);
+    }
+  }
+
+  // ── AI 回合 ──────────────────────────────────────────────────────────────────
+  _aiTurn() {
+    const token=++this._aiToken;
+    this.board.locked=true;
+    this._updateTurnIndicator();
+    this._updatePlayerBars();
+    this._updateTimerDisplay();
+    if (this.game.gameState==='check') this._showCheck();
+    else this._hideCheck();
+    this._show('ai-thinking');
+    setTimeout(()=>{
+      if (token!==this._aiToken) return;       // 已被新局/悔棋作废
+      this._hide('ai-thinking');
+      this.board.locked=false;
+      let mv=null;
+      try {
+        mv=this.ai.getBestMove(this.game,this.aiColor);
+      } catch(e) {
+        console.error('AI error:',e);
+      }
+      if (!mv) return;
+      this._onMove(mv.fr,mv.fc,mv.tr,mv.tc,true);
+    },600);
+  }
+
+  _startHumanTurn() {
+    this._hide('ai-thinking');
+    this.board.locked=false;
+    this._updateTurnIndicator();
+    this._updatePlayerBars();
+    this._updateTimerDisplay();
+    this._startTimer();
+    if (this.game.gameState==='check') this._showCheck();
+    else this._hideCheck();
+  }
+
+  // ── Undo ─────────────────────────────────────────────────────────────────────
+  undo() {
+    if (this.mode.type!=='ai') {
+      if (!this.game.undoMove()) return;
+      clearInterval(this.timerInterval);
+      this._rebuildHistory();
+      this.board.render(this.game.currentTurn);
+      this._updateTurnIndicator();
+      this._updatePlayerBars();
+      this._updateTimerDisplay();
+      this._startTimer();
+      if (this.game.gameState==='check') this._showCheck();
+      else this._hideCheck();
+      return;
+    }
+    // AI 模式：一次悔棋撤销"最近一步自己走的子"（AI 的应手一并撤销）
+    if (this.game.pendingPromotion) this.game.pendingPromotion=null;
+    if (!this.game.moveHistory.length) return;
+    clearInterval(this.timerInterval);
+    this._aiToken++;
+    this.game.undoMove();
+    if (this.game.currentTurn===this.aiColor && this.game.moveHistory.length) this.game.undoMove();
+    this._hide('ai-thinking');
+    this.board.locked=false;
+    this._rebuildHistory();
+    this.board.render(this.humanColor);
+    this._updateTurnIndicator();
+    this._updatePlayerBars();
+    this._updateTimerDisplay();
+    if (this.game.gameState==='check') this._showCheck();
+    else this._hideCheck();
+    if (this.game.currentTurn===this.aiColor) setTimeout(()=>this._aiTurn(),300);
+    else this._startTimer();
   }
 
   // ── Promotion Dialog ─────────────────────────────────────────────────────────
@@ -141,20 +271,6 @@ class ChessApp {
       choices.appendChild(btn);
     });
     this._show('promo-dialog');
-  }
-
-  // ── Undo ─────────────────────────────────────────────────────────────────────
-  undo() {
-    if (!this.game.undoMove()) return;
-    clearInterval(this.timerInterval);
-    this._rebuildHistory();
-    this.board.render(this.game.currentTurn);
-    this._updateTurnIndicator();
-    this._updatePlayerBars();
-    this._updateTimerDisplay();
-    this._startTimer();
-    if (this.game.gameState==='check') this._showCheck();
-    else this._hideCheck();
   }
 
   // ── Move History ─────────────────────────────────────────────────────────────
@@ -189,7 +305,9 @@ class ChessApp {
   _updateTurnIndicator() {
     const c=this.game.currentTurn;
     const el=document.getElementById('turn-indicator');
-    el.textContent=c==='white'?'白方回合':'黑方回合';
+    el.textContent=this.mode.type==='ai'
+      ? (c===this.aiColor?'AI 回合':'你的回合')
+      : (c==='white'?'白方回合':'黑方回合');
     el.className=`turn-indicator ${c}-turn`;
   }
 

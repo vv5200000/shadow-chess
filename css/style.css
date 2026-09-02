@@ -749,3 +749,37 @@ body {
 .rules-dialog-content::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
 }
+
+/* ── v4: AI 模式 & 显隐修复 ─────────────────────────────────────────── */
+.check-badge.hidden { display: none; }   /* 修复：将军徽章原先永远显示 */
+
+.ai-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent, #6C5CE7);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-left: 10px;
+  animation: aiPulse 1.2s ease-in-out infinite;
+}
+.ai-thinking::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent, #6C5CE7);
+  box-shadow: 0 0 8px var(--accent, #6C5CE7);
+}
+.ai-thinking.hidden { display: none; }
+@keyframes aiPulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+#mode-dialog .dialog-box.mode-box { padding: 36px 32px; }
+#mode-dialog .btn-primary { width: 100%; margin-top: 12px; }
+#mode-dialog .btn-ai {
+  border-color: rgba(108, 92, 231, 0.5);
+  box-shadow: 0 0 18px rgba(108, 92, 231, 0.15);
+}

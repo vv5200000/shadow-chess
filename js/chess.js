@@ -33,9 +33,11 @@ class ChessGame {
     this.board = Array.from({length:8}, () => Array(8).fill(null));
     this.currentTurn = 'white';
     this.moveHistory = [];
-    this.gameState = 'idle'; // idle|playing|check|checkmate|stalemate|won
+    this.gameState = 'idle'; // idle|playing|check|checkmate|stalemate|won|draw
     this.pendingPromotion = null;
     this.lastMove = null;
+    this._fpStack = [];
+    this._fpCounts = new Map();
   }
 
   newGame() {
@@ -245,6 +247,7 @@ class ChessGame {
 
     this.currentTurn=this.currentTurn==='white'?'black':'white';
     this._updateState();
+    this._recordRepetition();
     this.moveHistory.push(record);
     return record;
   }
@@ -258,6 +261,7 @@ class ChessGame {
     this.pendingPromotion=null;
     this.currentTurn=this.currentTurn==='white'?'black':'white';
     this._updateState();
+    this._recordRepetition();
     return record;
   }
 
@@ -269,7 +273,36 @@ class ChessGame {
     this.currentTurn=rec.prevTurn;
     this.lastMove=rec.prevLast;
     this.gameState=rec.prevState;
+    const fp=this._fpStack.pop();
+    if (fp!==undefined) {
+      const n=(this._fpCounts.get(fp)||1)-1;
+      if (n<=0) this._fpCounts.delete(fp);
+      else this._fpCounts.set(fp,n);
+    }
     return true;
+  }
+
+  // ── Repetition Draw ──────────────────────────────────────────────────────────
+  // 同一局面（含棋子身份/揭示状态/行棋方）出现 3 次即判和，防无限搅局
+  _fingerprint() {
+    let fp=this.currentTurn+'|';
+    for (let r=0;r<8;r++)
+      for (let c=0;c<8;c++) {
+        const p=this.board[r][c];
+        if (!p) continue;
+        fp+=r+','+c+':'+p.type+p.color+(p.revealed?'1':'0')+';';
+      }
+    return fp;
+  }
+
+  _recordRepetition() {
+    const fp=this._fingerprint();
+    this._fpStack.push(fp);
+    const n=(this._fpCounts.get(fp)||0)+1;
+    this._fpCounts.set(fp,n);
+    if (n>=3 && (this.gameState==='playing'||this.gameState==='check')) {
+      this.gameState='draw';
+    }
   }
 
   // ── State Update ────────────────────────────────────────────────────────────

@@ -7,7 +7,7 @@
   <meta name="description" content="独创暗影规则国际象棋：棋子随机排列，身份隐藏，首步按位置规则移动，移动后揭示真实身份。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
 
@@ -18,6 +18,19 @@
       <h2 id="pass-title" class="dialog-heading">轮到白方了</h2>
       <p id="pass-sub" class="dialog-sub">请将屏幕传递给对方，准备好后点击继续</p>
       <button id="btn-pass-ready" class="btn-primary">白方已准备好 →</button>
+    </div>
+  </div>
+
+  <!-- ░░ MODE SELECT DIALOG ░░ -->
+  <div id="mode-dialog" class="overlay">
+    <div class="dialog-box mode-box">
+      <div class="dialog-icon">♟️</div>
+      <h2 class="dialog-heading">暗影象棋 · Shadow Chess</h2>
+      <p class="dialog-sub">选择对战模式</p>
+      <button id="btn-mode-h2h" class="btn-primary">⚔️ 双人对战</button>
+      <button id="btn-mode-ai-w" class="btn-primary btn-ai">🤖 对战 AI · 我执白</button>
+      <button id="btn-mode-ai-b" class="btn-primary btn-ai">🤖 对战 AI · 我执黑</button>
+      <button id="btn-mode-rules" class="btn-sec" style="margin-top: 14px; width: 100%;">📖 规则说明</button>
     </div>
   </div>
 
@@ -57,7 +70,7 @@
         <p>当任意一方被“将军”时，<b>发起将军的敌方棋子会自动显形</b>，使防守方能够看清威胁来源并做出防卫。</p>
         
         <h3>6. 胜利条件</h3>
-        <p>捕获对方国王，或达成传统将死（Checkmate），或对方时间耗尽，即可获得胜利。</p>
+        <p>捕获对方国王，或达成传统将死（Checkmate），或对方时间耗尽，即可获得胜利。同一局面出现三次则判和棋。</p>
       </div>
       <button id="btn-rules-close" class="btn-primary" style="margin-top: 20px; width: 100%;">我知道了</button>
     </div>
@@ -125,6 +138,7 @@
           <span class="turn-dot"></span>白方回合
         </div>
         <div id="check-indicator" class="check-badge hidden">⚠️ 将军！</div>
+        <div id="ai-thinking" class="ai-thinking hidden">🤖 AI 思考中</div>
       </div>
 
       <!-- Controls -->
@@ -204,8 +218,9 @@
     </div><!-- /info-panel -->
   </div><!-- /game -->
 
-  <script src="js/chess.js?v=3"></script>
-  <script src="js/board.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/chess.js?v=4"></script>
+  <script src="js/board.js?v=4"></script>
+  <script src="js/ai.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>
