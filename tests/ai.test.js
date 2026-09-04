@@ -1,11 +1,9 @@
 'use strict';
 // 暗影象棋 AI 测试 · 运行: node tests/ai.test.js
 
-global.window = {};
-require('../js/chess.js');
-require('../js/ai.js');
-
-const { ChessGame, ShadowAI } = window;
+global.window = global.window || {};
+const { ChessGame } = require('../js/chess.js');
+const { ShadowAI } = require('../js/ai.js');
 
 let passed = 0, failed = 0;
 function assert(cond, name) {

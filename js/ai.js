@@ -11,6 +11,11 @@
 // 升变在搜索与实战中一律自动变后（Q）
 // ════════════════════════════════════════════════════════════════════════
 
+// 双端解析：浏览器拿 window.ChessGame，Node（AI 自对弈测试/服务器）走 require
+const GAME_CTOR = (typeof window!=='undefined'&&window.ChessGame) ? window.ChessGame
+               : (typeof require==='function') ? require('./chess.js').ChessGame
+               : null;
+
 const AI_PIECE_VALUES = { P: 1, N: 3, B: 3, R: 5, Q: 9, K: 0 };
 const AI_SIDE_TOTAL   = 39;   // 每方棋子价值总和: Q9+R5+R5+B3+B3+N3+N3+P×8（王不算）
 const AI_MATE         = 1000000;
@@ -109,7 +114,7 @@ class ShadowAI {
 
   // ── 状态克隆 ──
   _snapshot(game) {
-    const g = new (window.ChessGame)();
+    const g = new (GAME_CTOR)();
     g.board = game.board.map(row => row.map(c => (c ? { ...c } : null)));
     g.currentTurn = game.currentTurn;
     g.gameState = game.gameState;
@@ -170,4 +175,8 @@ class ShadowAI {
   }
 }
 
-if (typeof window !== 'undefined') window.ShadowAI = ShadowAI;
+if (typeof module!=='undefined'&&module.exports) {
+  module.exports={ShadowAI};
+} else if (typeof window !== 'undefined') {
+  window.ShadowAI = ShadowAI;
+}

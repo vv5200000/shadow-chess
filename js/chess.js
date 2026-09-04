@@ -349,5 +349,10 @@ class ChessGame {
   }
 }
 
-window.ChessGame=ChessGame;
-window.PIECE_SYMBOLS=PIECE_SYMBOLS;
+// ── 双端导出：浏览器挂 window，Node（联机服务器 / 测试）走 module.exports ──────
+if (typeof module!=='undefined'&&module.exports) {
+  module.exports={ChessGame,PIECE_SYMBOLS};
+} else {
+  window.ChessGame=ChessGame;
+  window.PIECE_SYMBOLS=PIECE_SYMBOLS;
+}
